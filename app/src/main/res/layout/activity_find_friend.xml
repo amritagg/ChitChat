@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Activities.FindFriendActivity">
+
+    <TextView
+        android:id="@+id/text_mail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/enter_the_email_of_your_friend"
+        android:textSize="24sp"
+        android:gravity="center_horizontal"
+        android:layout_marginVertical="16dp"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/edit_email_box"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/search_id"
+        app:layout_constraintTop_toBottomOf="@id/text_mail"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginVertical="32dp"
+        style="@style/Animation.Design.BottomSheetDialog"
+        android:hint="@string/xyz_gmail_com"
+        android:autofillHints="xyz@gmail.com"
+        android:labelFor="@id/text_mail"
+        android:inputType="textEmailAddress" />
+
+    <ImageButton
+        android:id="@+id/search_id"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:background="@drawable/ic_baseline_search_24"
+        app:layout_constraintLeft_toRightOf="@id/edit_email_box"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/edit_email_box"
+        app:layout_constraintTop_toTopOf="@id/edit_email_box"
+        android:layout_marginEnd="16dp"
+        android:contentDescription="@string/search" />
+
+    <LinearLayout
+        android:id="@+id/found_friend"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/edit_email_box"
+        app:layout_constraintBottom_toBottomOf="parent" >
+
+        <TextView
+            android:id="@+id/found_name"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="32dp"
+            tools:text="friendId@gmail.com"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:textSize="24sp"
+            android:layout_gravity="center"
+            android:layout_marginHorizontal="12dp"
+            android:gravity="center" />
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

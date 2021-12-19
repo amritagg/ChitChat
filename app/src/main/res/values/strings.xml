@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">Chit Chat</string>
+
+    <string name="new_chat">New chat</string>
+    <string name="userImage">userImage</string>
+    <string name="enter_the_email_of_your_friend">Enter the Email of your friend</string>
+    <string name="xyz_gmail_com">xyz@gmail.com</string>
+    <string name="search">search</string>
+    <string name="received_image">Received image</string>
+    <string name="type_message_here">Type Message here</string>
+    <string name="send_message">Send message</string>
+    <string name="send_image">Send image</string>
+    <string name="log_out">log out</string>
+    <string name="message">Message…</string>
+    <string name="image_to_select">Image to select</string>
+    <string name="image">Image</string>
+</resources>
