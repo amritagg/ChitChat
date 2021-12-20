@@ -22,6 +22,8 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.amrit.practice.chitchat.Adapters.ImageAdapter;
+import com.amrit.practice.chitchat.Listeners.OnImageClickListener;
+import com.amrit.practice.chitchat.Utilities.Constants;
 import com.amrit.practice.chitchat.Loader.ImageLoader;
 import com.amrit.practice.chitchat.R;
 
@@ -29,7 +31,7 @@ import java.util.ArrayList;
 
 public class ImagePickerActivity extends AppCompatActivity
                 implements LoaderManager.LoaderCallbacks<ArrayList<String>>,
-                            ImageAdapter.OnImageClickListener {
+        OnImageClickListener {
 
     private static final String LOG_TAG = ImagePickerActivity.class.getSimpleName();
 
@@ -97,8 +99,8 @@ public class ImagePickerActivity extends AppCompatActivity
     @Override
     public void OnImageClick(int position) {
         Intent intent = new Intent(this, ShowImageActivity.class);
-        intent.putExtra(ShowImageActivity.INTENT_FLAG, 1);
-        intent.putExtra("uri", mediaList.get(position));
+        intent.putExtra(Constants.INTENT_FLAG, 1);
+        intent.putExtra(Constants.INTENT_URI, mediaList.get(position));
         getImageUri.launch(intent);
     }
 

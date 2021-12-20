@@ -1,4 +1,4 @@
-package com.amrit.practice.chitchat;
+package com.amrit.practice.chitchat.Utilities;
 
 import android.content.Context;
 import android.util.AttributeSet;

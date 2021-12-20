@@ -15,13 +15,15 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.amrit.practice.chitchat.Activities.ChatActivity;
+import com.amrit.practice.chitchat.Utilities.Constants;
 import com.amrit.practice.chitchat.Objects.ChatObject;
 import com.amrit.practice.chitchat.R;
+import com.amrit.practice.chitchat.ViewModels.HomeChatListRecyclerViewHolder;
 import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
 
-public class HomeScreenAdapter extends RecyclerView.Adapter<HomeScreenAdapter.HomeChatListRecyclerViewHolder> {
+public class HomeScreenAdapter extends RecyclerView.Adapter<HomeChatListRecyclerViewHolder> {
 
     private final ArrayList<ChatObject> chatList;
     private final Context context;
@@ -53,11 +55,11 @@ public class HomeScreenAdapter extends RecyclerView.Adapter<HomeScreenAdapter.Ho
         holder.layout.setOnClickListener(view -> {
             ChatObject chatObject = chatList.get(holder.getAdapterPosition());
             Intent intent = new Intent(view.getContext(), ChatActivity.class);
-            intent.putExtra("chatId", chatObject.getChatId());
-            intent.putExtra("chatName", chatObject.getFriendName());
-            intent.putExtra("publicKey", chatObject.getPublicKey());
-            intent.putExtra("otherPrivateKey", chatObject.getOtherPrivateKey());
-            intent.putExtra("selfPrivateKey", chatObject.getSelfPrivateKey());
+            intent.putExtra(Constants.INTENT_CHAT_ID, chatObject.getChatId());
+            intent.putExtra(Constants.INTENT_CHAT_NAME, chatObject.getFriendName());
+            intent.putExtra(Constants.INTENT_PUBLIC_KEY, chatObject.getPublicKey());
+            intent.putExtra(Constants.INTENT_OTHER_PRIVATE_KEY, chatObject.getOtherPrivateKey());
+            intent.putExtra(Constants.INTENT_SELF_PRIVATE_KEY, chatObject.getSelfPrivateKey());
             Log.e("HOME", chatObject.getChatId());
             view.getContext().startActivity(intent);
         });
@@ -68,19 +70,4 @@ public class HomeScreenAdapter extends RecyclerView.Adapter<HomeScreenAdapter.Ho
         return chatList.size();
     }
 
-    public static class HomeChatListRecyclerViewHolder extends RecyclerView.ViewHolder {
-
-        TextView friend_id;
-        TextView friend_name;
-        LinearLayout layout;
-        ImageView profileImage;
-
-        public HomeChatListRecyclerViewHolder(@NonNull View itemView) {
-            super(itemView);
-            friend_id = itemView.findViewById(R.id.user_id);
-            friend_name = itemView.findViewById(R.id.user_name);
-            layout = itemView.findViewById(R.id.home_list_card_layout);
-            profileImage = itemView.findViewById(R.id.profile_image);
-        }
-    }
 }

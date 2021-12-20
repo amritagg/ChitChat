@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.amrit.practice.chitchat.Utilities.Constants;
 import com.amrit.practice.chitchat.R;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -100,7 +101,7 @@ public class SignInActivity extends AppCompatActivity {
                         Toast.makeText(getApplicationContext(), "Login successful", Toast.LENGTH_SHORT).show();
                         if (user != null) {
                             final DatabaseReference mUserDb = FirebaseDatabase.getInstance().getReference()
-                                    .child("user").child(user.getUid());
+                                    .child(Constants.FIRE_USER).child(user.getUid());
 
                             mUserDb.addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
@@ -110,11 +111,11 @@ public class SignInActivity extends AppCompatActivity {
                                         assert email != null;
                                         String userName = email.substring(0, email .indexOf("@"));
                                         Map<String, Object> userMap = new HashMap<>();
-                                        userMap.put("email", email);
-                                        userMap.put("name", user.getDisplayName());
-                                        userMap.put("userName", userName);
+                                        userMap.put(Constants.FIRE_EMAIL, email);
+                                        userMap.put(Constants.FIRE_NAME, user.getDisplayName());
+                                        userMap.put(Constants.FIRE_USERNAME, userName);
                                         if(user.getPhotoUrl() != null){
-                                            userMap.put("photoUrl", Objects.requireNonNull(user.getPhotoUrl()).toString());
+                                            userMap.put(Constants.FIRE_PHOTO, Objects.requireNonNull(user.getPhotoUrl()).toString());
                                         }
                                         mUserDb.updateChildren(userMap);
                                     }

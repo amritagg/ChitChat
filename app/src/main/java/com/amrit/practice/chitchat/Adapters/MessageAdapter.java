@@ -13,13 +13,15 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.amrit.practice.chitchat.Activities.ShowImageActivity;
+import com.amrit.practice.chitchat.Utilities.Constants;
 import com.amrit.practice.chitchat.Objects.MessageObject;
 import com.amrit.practice.chitchat.R;
+import com.amrit.practice.chitchat.ViewModels.MessageListRecyclerViewHolder;
 import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
 
-public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageListRecyclerViewHolder> {
+public class MessageAdapter extends RecyclerView.Adapter<MessageListRecyclerViewHolder> {
 
     private final ArrayList<MessageObject> messageList;
     private final Context context;
@@ -73,8 +75,8 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageL
 
             holder.imageView.setOnClickListener(view -> {
                 Intent intent = new Intent(context.getApplicationContext(), ShowImageActivity.class);
-                intent.putExtra(ShowImageActivity.INTENT_FLAG, 0);
-                intent.putExtra(ShowImageActivity.INTENT_URI, imageUrl);
+                intent.putExtra(Constants.INTENT_FLAG, 0);
+                intent.putExtra(Constants.INTENT_URI, imageUrl);
                 context.startActivity(intent);
             });
         }
@@ -85,20 +87,5 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageL
         return messageList.size();
     }
 
-    public static class MessageListRecyclerViewHolder extends RecyclerView.ViewHolder {
-
-        TextView messageView;
-        ImageView imageView;
-        TextView messageTime;
-        LinearLayout layout;
-
-        public MessageListRecyclerViewHolder(@NonNull View itemView) {
-            super(itemView);
-            messageView = itemView.findViewById(R.id.message_view);
-            imageView = itemView.findViewById(R.id.image_load);
-            messageTime = itemView.findViewById(R.id.message_time);
-            layout = itemView.findViewById(R.id.msg_item_layout);
-        }
-    }
 
 }

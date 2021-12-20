@@ -11,7 +11,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.amrit.practice.chitchat.Encrypt_decrypt;
+import com.amrit.practice.chitchat.Utilities.Constants;
+import com.amrit.practice.chitchat.Utilities.Encrypt_decrypt;
 import com.amrit.practice.chitchat.Objects.FriendObject;
 import com.amrit.practice.chitchat.R;
 import com.google.firebase.auth.FirebaseAuth;
@@ -41,12 +42,12 @@ public class FindFriendActivity extends AppCompatActivity {
         ImageButton search = findViewById(R.id.search_id);
         TextView found = findViewById(R.id.found_name);
 
-        DatabaseReference mUserDb = FirebaseDatabase.getInstance().getReference().child("user");
+        DatabaseReference mUserDb = FirebaseDatabase.getInstance().getReference().child(Constants.FIRE_USER);
         final FriendObject[] searchFriendObject = {null};
 
         search.setOnClickListener(view -> {
             String mail = mMailText.getText().toString();
-            Query query = mUserDb.orderByChild("email").equalTo(mail);
+            Query query = mUserDb.orderByChild(Constants.FIRE_EMAIL).equalTo(mail);
 
             query.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
@@ -55,13 +56,13 @@ public class FindFriendActivity extends AppCompatActivity {
                         boolean found = false;
                         for (DataSnapshot snap : snapshot.getChildren()) {
                             if (found) break;
-                            if (snap.child("userName").getValue() != null) {
-                                String name = Objects.requireNonNull(snap.child("name").getValue()).toString();
-                                String userName = Objects.requireNonNull(snap.child("userName").getValue()).toString();
-                                String mail = Objects.requireNonNull(snap.child("email").getValue()).toString();
+                            if (snap.child(Constants.FIRE_USERNAME).getValue() != null) {
+                                String name = Objects.requireNonNull(snap.child(Constants.FIRE_NAME).getValue()).toString();
+                                String userName = Objects.requireNonNull(snap.child(Constants.FIRE_USERNAME).getValue()).toString();
+                                String mail = Objects.requireNonNull(snap.child(Constants.FIRE_EMAIL).getValue()).toString();
                                 String photoUrl = "";
-                                if(snap.child("photoUrl").exists()){
-                                    photoUrl = Objects.requireNonNull(snap.child("photoUrl").getValue()).toString();
+                                if (snap.child(Constants.FIRE_PHOTO).exists()) {
+                                    photoUrl = Objects.requireNonNull(snap.child(Constants.FIRE_PHOTO).getValue()).toString();
                                 }
                                 searchFriendObject[0] = new FriendObject(name, userName, mail, snap.getKey(), photoUrl);
                                 TextView textView = findViewById(R.id.found_name);
@@ -69,13 +70,14 @@ public class FindFriendActivity extends AppCompatActivity {
                                 found = true;
                             }
                         }
-                    }else{
+                    } else {
                         found.setText("User Not Available");
                     }
                 }
 
                 @Override
-                public void onCancelled(@NonNull DatabaseError error) { }
+                public void onCancelled(@NonNull DatabaseError error) {
+                }
 
             });
 
@@ -88,7 +90,7 @@ public class FindFriendActivity extends AppCompatActivity {
             String friendId = searchFriendObject[0].getUserId();
 
             assert curUserId != null;
-            DatabaseReference mDb = mUserDb.child(curUserId).child("chat").child(friendId);
+            DatabaseReference mDb = mUserDb.child(curUserId).child(Constants.FIRE_CHAT).child(friendId);
 
             mDb.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
@@ -99,32 +101,38 @@ public class FindFriendActivity extends AppCompatActivity {
                 }
 
                 @Override
-                public void onCancelled(@NonNull DatabaseError error) { }
+                public void onCancelled(@NonNull DatabaseError error) {
+                }
 
             });
 
-            Log.e("find", "done till now");
-            DatabaseReference db = FirebaseDatabase.getInstance().getReference().child("user").child(curUserId).child("chat").child(friendId);
+            DatabaseReference db = FirebaseDatabase.getInstance().getReference().child(Constants.FIRE_USER).child(curUserId).child(Constants.FIRE_CHAT).child(friendId);
             db.addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     if (snapshot.exists()) {
-                        Iterable<DataSnapshot> iterator = snapshot.getChildren();
-                        while (iterator.iterator().hasNext()) {
-                            String chatId = iterator.iterator().next().getKey();
-                            String chatName = searchFriendObject[0].getUserName();
-                            Log.e("find", "done till now");
-                            Log.e(LOG_TAG, chatId);
-                            Intent intent = new Intent(getApplicationContext(), ChatActivity.class);
-                            intent.putExtra("chatId", chatId);
-                            intent.putExtra("chatName", chatName);
-                            startActivity(intent);
-                        }
+                        String chatId = Objects.requireNonNull(snapshot.child(Constants.FIRE_CHAT_ID).getValue()).toString();
+                        String chatName = searchFriendObject[0].getUserName();
+                        String publicKey = Objects.requireNonNull(snapshot.child(Constants.FIRE_PUBLIC_KEY).getValue()).toString();
+                        String selfPrivateKey = Objects.requireNonNull(snapshot.child(Constants.FIRE_SELF_PRIVATE_KEY).getValue()).toString();
+                        String otherPrivateKey = Objects.requireNonNull(snapshot.child(Constants.FIRE_OTHER_PRIVATE_KEY).getValue()).toString();
+
+                        Log.e(LOG_TAG, chatId);
+                        Intent intent = new Intent(getApplicationContext(), ChatActivity.class);
+                        intent.putExtra(Constants.INTENT_CHAT_ID, chatId);
+                        intent.putExtra(Constants.INTENT_CHAT_NAME, chatName);
+                        intent.putExtra(Constants.INTENT_PUBLIC_KEY, publicKey);
+                        intent.putExtra(Constants.INTENT_OTHER_PRIVATE_KEY, otherPrivateKey);
+                        intent.putExtra(Constants.INTENT_SELF_PRIVATE_KEY, selfPrivateKey);
+
+                        startActivity(intent);
+
                     }
                 }
 
                 @Override
-                public void onCancelled(@NonNull DatabaseError error) { }
+                public void onCancelled(@NonNull DatabaseError error) {
+                }
             });
 
         });
@@ -133,7 +141,7 @@ public class FindFriendActivity extends AppCompatActivity {
 
     private void createFriend(@NonNull DatabaseReference mUserDb, String curUserId, String friendId) {
         Log.e(LOG_TAG, "Doesn't exist");
-        String key = FirebaseDatabase.getInstance().getReference().child("chat").push().getKey();
+        String key = FirebaseDatabase.getInstance().getReference().child(Constants.FIRE_CHAT).push().getKey();
         assert key != null;
 
         KeyPair curKey = Encrypt_decrypt.getKeyPair();
@@ -145,21 +153,19 @@ public class FindFriendActivity extends AppCompatActivity {
         String friPublicKey = Encrypt_decrypt.getPublicKey(friKey);
 
         HashMap<String, Object> curMap = new HashMap<>();
-        curMap.put("public_key", curPublicKey);
-        curMap.put("other_private_key", friPrivateKey);
-        curMap.put("self_private_key", curPrivateKey);
-        curMap.put("chat_id", key);
+        curMap.put(Constants.FIRE_PUBLIC_KEY, curPublicKey);
+        curMap.put(Constants.FIRE_OTHER_PRIVATE_KEY, friPrivateKey);
+        curMap.put(Constants.FIRE_SELF_PRIVATE_KEY, curPrivateKey);
+        curMap.put(Constants.FIRE_CHAT_ID, key);
 
         HashMap<String, Object> friMap = new HashMap<>();
-        friMap.put("public_key", friPublicKey);
-        friMap.put("other_private_key", curPrivateKey);
-        friMap.put("self_private_key", friPrivateKey);
-        friMap.put("chat_id", key);
+        friMap.put(Constants.FIRE_PUBLIC_KEY, friPublicKey);
+        friMap.put(Constants.FIRE_OTHER_PRIVATE_KEY, curPrivateKey);
+        friMap.put(Constants.FIRE_SELF_PRIVATE_KEY, friPrivateKey);
+        friMap.put(Constants.FIRE_CHAT_ID, key);
 
-        mUserDb.child(curUserId).child("chat").child(friendId).updateChildren(curMap);
-        mUserDb.child(friendId).child("chat").child(curUserId).updateChildren(friMap);
-//        mUserDb.child(curUserId).child("chat").child(friendId).child(key).setValue(true);
-//        mUserDb.child(friendId).child("chat").child(curUserId).child(key).setValue(true);
+        mUserDb.child(curUserId).child(Constants.FIRE_CHAT).child(friendId).updateChildren(curMap);
+        mUserDb.child(friendId).child(Constants.FIRE_CHAT).child(curUserId).updateChildren(friMap);
     }
 
 }

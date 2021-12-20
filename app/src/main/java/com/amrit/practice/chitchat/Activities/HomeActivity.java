@@ -14,6 +14,7 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 
 import com.amrit.practice.chitchat.Adapters.HomeScreenAdapter;
+import com.amrit.practice.chitchat.Utilities.Constants;
 import com.amrit.practice.chitchat.Objects.ChatObject;
 import com.amrit.practice.chitchat.R;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -64,59 +65,48 @@ public class HomeActivity extends AppCompatActivity {
     private void loadFriends() {
         String curUserId = FirebaseAuth.getInstance().getUid();
         assert curUserId != null;
-        DatabaseReference mDb = FirebaseDatabase.getInstance().getReference().child("user").child(curUserId).child("chat");
+        DatabaseReference mDb = FirebaseDatabase.getInstance().getReference().child(Constants.FIRE_USER).child(curUserId).child(Constants.FIRE_CHAT);
 
         mDb.addValueEventListener(new ValueEventListener() {
             @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if(snapshot.exists()) {
+                if (snapshot.exists()) {
                     for (DataSnapshot childSnapShot : snapshot.getChildren()) { // child of chat
-                        Iterable<DataSnapshot> iterator = childSnapShot.getChildren();
-                        String chatId = "";
-                        String publicKey = "";
-                        String selfPrivateKey = "";
-                        String otherPrivateKey = "";
                         String friendId = childSnapShot.getKey();
 
-//                        if (iterator.iterator().hasNext()) {
-                            chatId = Objects.requireNonNull(childSnapShot.child("chat_id").getValue()).toString();
-                            publicKey = Objects.requireNonNull(childSnapShot.child("public_key").getValue()).toString();
-                            selfPrivateKey = Objects.requireNonNull(childSnapShot.child("self_private_key").getValue()).toString();
-                            otherPrivateKey = Objects.requireNonNull(childSnapShot.child("other_private_key").getValue()).toString();
-//                        }
+                        String chatId = Objects.requireNonNull(childSnapShot.child(Constants.FIRE_CHAT_ID).getValue()).toString();
+                        String publicKey = Objects.requireNonNull(childSnapShot.child(Constants.FIRE_PUBLIC_KEY).getValue()).toString();
+                        String selfPrivateKey = Objects.requireNonNull(childSnapShot.child(Constants.FIRE_SELF_PRIVATE_KEY).getValue()).toString();
+                        String otherPrivateKey = Objects.requireNonNull(childSnapShot.child(Constants.FIRE_OTHER_PRIVATE_KEY).getValue()).toString();
 
                         assert friendId != null;
-                        DatabaseReference db = FirebaseDatabase.getInstance().getReference().child("user").child(friendId);
-                        String finalChatId = chatId;
-                        String finalPublicKey = publicKey;
-                        String finalOtherPrivateKey = otherPrivateKey;
-                        String finalSelfPrivateKey = selfPrivateKey;
+                        DatabaseReference db = FirebaseDatabase.getInstance().getReference().child(Constants.FIRE_USER).child(friendId);
                         db.addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                if(snapshot.exists()){
-                                    Log.e(LOG_TAG, "this is done " + Objects.requireNonNull(snapshot.child("name").getValue()).toString());
-                                    String friendName = Objects.requireNonNull(snapshot.child("name").getValue()).toString();
+                                if (snapshot.exists()) {
+                                    Log.e(LOG_TAG, "this is done " + Objects.requireNonNull(snapshot.child(Constants.FIRE_NAME).getValue()).toString());
+                                    String friendName = Objects.requireNonNull(snapshot.child(Constants.FIRE_NAME).getValue()).toString();
                                     String photoUrl = "";
                                     String email = "";
 
-                                    if(snapshot.child("photoUrl").exists()){
-                                        photoUrl = Objects.requireNonNull(snapshot.child("photoUrl").getValue()).toString();
+                                    if (snapshot.child(Constants.FIRE_PHOTO).exists()) {
+                                        photoUrl = Objects.requireNonNull(snapshot.child(Constants.FIRE_PHOTO).getValue()).toString();
                                     }
-                                    if(snapshot.child("email").exists()){
-                                        email = Objects.requireNonNull(snapshot.child("email").getValue()).toString();
+                                    if (snapshot.child(Constants.FIRE_EMAIL).exists()) {
+                                        email = Objects.requireNonNull(snapshot.child(Constants.FIRE_EMAIL).getValue()).toString();
                                     }
 
-                                    ChatObject mChat = new ChatObject(finalChatId, friendId, friendName, photoUrl, email, finalPublicKey, finalOtherPrivateKey, finalSelfPrivateKey);
-//                                    Log.e(LOG_TAG, finalChatId + " " + friendId + " " + friendName + " " + finalPublicKey + " " + finalPrivateKey);
+                                    ChatObject mChat = new ChatObject(chatId, friendId, friendName, photoUrl, email, publicKey, otherPrivateKey, selfPrivateKey);
                                     chatList.add(mChat);
                                     mUserAdapter.notifyDataSetChanged();
                                 }
                             }
 
                             @Override
-                            public void onCancelled(@NonNull DatabaseError error) { }
+                            public void onCancelled(@NonNull DatabaseError error) {
+                            }
 
                         });
 
@@ -128,13 +118,14 @@ public class HomeActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) { }
+            public void onCancelled(@NonNull DatabaseError error) {
+            }
 
         });
 
     }
 
-    private void initialiseRecyclerView(){
+    private void initialiseRecyclerView() {
         chatList = new ArrayList<>();
         mUser = findViewById(R.id.home_list);
         mUser.setVisibility(View.GONE);

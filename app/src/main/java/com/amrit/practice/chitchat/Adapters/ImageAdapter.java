@@ -11,12 +11,14 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.amrit.practice.chitchat.Listeners.OnImageClickListener;
 import com.amrit.practice.chitchat.R;
+import com.amrit.practice.chitchat.ViewModels.ImageGridRecyclerViewHolder;
 import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
 
-public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageGridRecyclerViewHolder> {
+public class ImageAdapter extends RecyclerView.Adapter<ImageGridRecyclerViewHolder> {
 
     private final Context context;
     private final ArrayList<String> imageUris;
@@ -54,25 +56,4 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageGridRec
         return imageUris.size();
     }
 
-    public static class ImageGridRecyclerViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-
-        ImageView media;
-        OnImageClickListener onImageClickListener;
-
-        public ImageGridRecyclerViewHolder(@NonNull View itemView, OnImageClickListener onImageClickListener) {
-            super(itemView);
-            media = itemView.findViewById(R.id.image_picker_image_view);
-            this.onImageClickListener = onImageClickListener;
-            itemView.setOnClickListener(this);
-        }
-
-        @Override
-        public void onClick(View view) {
-            onImageClickListener.OnImageClick(getAdapterPosition());
-        }
-    }
-
-    public interface OnImageClickListener {
-        void OnImageClick(int position);
-    }
 }

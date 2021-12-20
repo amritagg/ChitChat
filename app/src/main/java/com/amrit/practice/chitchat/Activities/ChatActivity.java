@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -18,7 +17,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.amrit.practice.chitchat.Adapters.MessageAdapter;
-import com.amrit.practice.chitchat.Encrypt_decrypt;
+import com.amrit.practice.chitchat.Utilities.Constants;
+import com.amrit.practice.chitchat.Utilities.Encrypt_decrypt;
 import com.amrit.practice.chitchat.Objects.MessageObject;
 import com.amrit.practice.chitchat.R;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -58,14 +58,14 @@ public class ChatActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
-        chatId = getIntent().getStringExtra("chatId");
-        chatName = getIntent().getStringExtra("chatName");
-        publicKey = getIntent().getStringExtra("publicKey");
-        otherPrivateKey = getIntent().getStringExtra("otherPrivateKey");
-        selfPrivateKey = getIntent().getStringExtra("selfPrivateKey");
+        chatId = getIntent().getStringExtra(Constants.INTENT_CHAT_ID);
+        chatName = getIntent().getStringExtra(Constants.INTENT_CHAT_NAME);
+        publicKey = getIntent().getStringExtra(Constants.INTENT_PUBLIC_KEY);
+        otherPrivateKey = getIntent().getStringExtra(Constants.INTENT_OTHER_PRIVATE_KEY);
+        selfPrivateKey = getIntent().getStringExtra(Constants.INTENT_SELF_PRIVATE_KEY);
 
         setTitle(chatName);
-        mDb = FirebaseDatabase.getInstance().getReference().child("chat").child(chatId);
+        mDb = FirebaseDatabase.getInstance().getReference().child(Constants.FIRE_CHAT).child(chatId);
 
         initializeRecyclerView();
 
@@ -91,11 +91,11 @@ public class ChatActivity extends AppCompatActivity {
             assert messageId != null;
             DatabaseReference messageDb = mDb.child(messageId);
             Map<String, Object> newMessageMap = new HashMap<>();
-            newMessageMap.put("senderId", FirebaseAuth.getInstance().getUid());
+            newMessageMap.put(Constants.FIRE_SENDER_ID, FirebaseAuth.getInstance().getUid());
             String msg = messageBox.getText().toString();
             String encryptMsg = Encrypt_decrypt.encryptRSAToString(msg, publicKey);
-            newMessageMap.put("text", encryptMsg);
-            newMessageMap.put("time", date);
+            newMessageMap.put(Constants.FIRE_TEXT, encryptMsg);
+            newMessageMap.put(Constants.FIRE_TIME, date);
             messageDb.updateChildren(newMessageMap);
             messageBox.setText(null);
             mChatAdapter.notifyDataSetChanged();
@@ -113,15 +113,15 @@ public class ChatActivity extends AppCompatActivity {
         assert messageId != null;
         final DatabaseReference newMessageDb = mDb.child(messageId);
         final Map<String, Object> newMessageMap = new HashMap<>();
-        newMessageMap.put("senderId", FirebaseAuth.getInstance().getUid());
-        newMessageMap.put("time", date);
+        newMessageMap.put(Constants.FIRE_SENDER_ID, FirebaseAuth.getInstance().getUid());
+        newMessageMap.put(Constants.FIRE_TIME, date);
 
         if(!mediaMessage.isEmpty()){
             String encryptMsg = Encrypt_decrypt.encryptRSAToString(mediaMessage, publicKey);
-            newMessageMap.put("text", encryptMsg);
+            newMessageMap.put(Constants.FIRE_TEXT, encryptMsg);
         }
 
-        String mediaId = mDb.child("image").push().getKey();
+        String mediaId = mDb.child(Constants.FIRE_IMAGE).push().getKey();
         assert mediaId != null;
         StorageReference filePath = FirebaseStorage.getInstance().getReference().child("chat").child(chatId).child(messageId);
         UploadTask uploadTask = filePath.putFile(Uri.parse(uriString));
@@ -145,30 +145,26 @@ public class ChatActivity extends AppCompatActivity {
                     String mediaUrl = "";
                     String time = "";
 
-                    if (snapshot.child("senderId").getValue() != null) {
-                        senderId = Objects.requireNonNull(snapshot.child("senderId").getValue()).toString();
+                    if (snapshot.child(Constants.FIRE_SENDER_ID).getValue() != null) {
+                        senderId = Objects.requireNonNull(snapshot.child(Constants.FIRE_SENDER_ID).getValue()).toString();
                     }
-                    if (snapshot.child("image").getValue() != null) {
-                        for (DataSnapshot mediaSnapShot : snapshot.child("image").getChildren()) {
+                    if (snapshot.child(Constants.FIRE_IMAGE).getValue() != null) {
+                        for (DataSnapshot mediaSnapShot : snapshot.child(Constants.FIRE_IMAGE).getChildren()) {
                             mediaUrl = Objects.requireNonNull(mediaSnapShot.getValue()).toString();
                         }
                     }
-                    if(snapshot.child("time").getValue() != null){
-                        time = Objects.requireNonNull(snapshot.child("time").getValue()).toString();
+                    if(snapshot.child(Constants.FIRE_TIME).getValue() != null){
+                        time = Objects.requireNonNull(snapshot.child(Constants.FIRE_TIME).getValue()).toString();
                     }
-                    if (snapshot.child("text").getValue() != null) {
-                        String msg = Objects.requireNonNull(snapshot.child("text").getValue()).toString();
-                        Log.e(LOG_TAG, msg);
+                    if (snapshot.child(Constants.FIRE_TEXT).getValue() != null) {
+                        String msg = Objects.requireNonNull(snapshot.child(Constants.FIRE_TEXT).getValue()).toString();
                         if(senderId.equals(FirebaseAuth.getInstance().getUid())){
-                            Log.e(LOG_TAG, msg + " " + selfPrivateKey);
                             text = Encrypt_decrypt.decryptRSAToString(msg, selfPrivateKey);
                         }else{
-                            Log.e(LOG_TAG, msg + " " + otherPrivateKey);
                             text = Encrypt_decrypt.decryptRSAToString(msg, otherPrivateKey);
                         }
                     }
 
-                    Log.e("ChatAct", mediaUrl);
                     MessageObject messageObject = new MessageObject(snapshot.getKey(), text, senderId, mediaUrl, time);
                     messageList.add(messageObject);
                     mChatAdapter.notifyDataSetChanged();
@@ -209,8 +205,8 @@ public class ChatActivity extends AppCompatActivity {
                     Intent data = result.getData();
                     assert data != null;
                     Bundle bundle = data.getExtras();
-                    String uriString = bundle.getString("mediaUri");
-                    String mediaMessage = bundle.getString("mediaMessage");
+                    String uriString = bundle.getString(Constants.INTENT_MEDIA_URI);
+                    String mediaMessage = bundle.getString(Constants.INTENT_MEDIA_MESSAGE);
 
                     sendImage(uriString, mediaMessage);
                 }

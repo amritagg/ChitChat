@@ -1,7 +1,9 @@
-package com.amrit.practice.chitchat;
+package com.amrit.practice.chitchat.Utilities;
 
 import android.util.Base64;
 import android.util.Log;
+
+import com.amrit.practice.chitchat.Utilities.Constants;
 
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
@@ -21,7 +23,7 @@ public class Encrypt_decrypt {
     public static KeyPair getKeyPair() {
         KeyPair kp = null;
         try {
-            KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
+            KeyPairGenerator kpg = KeyPairGenerator.getInstance(Constants.RSA);
             kpg.initialize(2048);
             kp = kpg.generateKeyPair();
         } catch (Exception e) {
@@ -46,12 +48,12 @@ public class Encrypt_decrypt {
     public static String encryptRSAToString(String clearText, String publicKey) {
         String encryptedBase64 = "";
         try {
-            KeyFactory keyFac = KeyFactory.getInstance("RSA");
+            KeyFactory keyFac = KeyFactory.getInstance(Constants.RSA);
             KeySpec keySpec = new X509EncodedKeySpec(Base64.decode(publicKey.trim().getBytes(), Base64.DEFAULT));
             Key key = keyFac.generatePublic(keySpec);
 
             // get an RSA cipher object and print the provider
-            final Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWITHSHA-256ANDMGF1PADDING");
+            final Cipher cipher = Cipher.getInstance(Constants.RSA_INSTANCE);
             // encrypt the plain text using the public key
             cipher.init(Cipher.ENCRYPT_MODE, key);
 
@@ -68,12 +70,12 @@ public class Encrypt_decrypt {
 
         String decryptedString = "";
         try {
-            KeyFactory keyFac = KeyFactory.getInstance("RSA");
+            KeyFactory keyFac = KeyFactory.getInstance(Constants.RSA);
             KeySpec keySpec = new PKCS8EncodedKeySpec(Base64.decode(privateKey.trim().getBytes(), Base64.DEFAULT));
             Key key = keyFac.generatePrivate(keySpec);
 
             // get an RSA cipher object and print the provider
-            final Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWITHSHA-256ANDMGF1PADDING");
+            final Cipher cipher = Cipher.getInstance(Constants.RSA_INSTANCE);
             // encrypt the plain text using the public key
             cipher.init(Cipher.DECRYPT_MODE, key);
 
@@ -88,6 +90,5 @@ public class Encrypt_decrypt {
 //        Log.e("EN_DE", decryptedString);
         return decryptedString;
     }
-
 
 }
